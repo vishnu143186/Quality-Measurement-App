@@ -2,11 +2,8 @@ public class QuantityMeasurementApp {
 
     public enum LengthUnit {
         FEET(1.0),
-
         INCH(1.0 / 12.0),
-
         YARD(3.0),
-
         CM(0.0328084);
 
         private final double toFeetFactor;
@@ -18,6 +15,10 @@ public class QuantityMeasurementApp {
         public double toFeet(double value) {
             return value * toFeetFactor;
         }
+
+        public double fromFeet(double feetValue) {
+            return feetValue / toFeetFactor;
+        }
     }
 
     public static class Quantity {
@@ -28,12 +29,26 @@ public class QuantityMeasurementApp {
             if (unit == null) {
                 throw new IllegalArgumentException("Unit cannot be null");
             }
+            if (!Double.isFinite(value)) {
+                throw new IllegalArgumentException("Invalid numeric value");
+            }
             this.value = value;
             this.unit = unit;
         }
 
         private double toFeet() {
             return unit.toFeet(value);
+        }
+
+        public Quantity convertTo(LengthUnit targetUnit) {
+            if (targetUnit == null) {
+                throw new IllegalArgumentException("Target unit cannot be null");
+            }
+
+            double feetValue = this.toFeet();
+            double convertedValue = targetUnit.fromFeet(feetValue);
+
+            return new Quantity(convertedValue, targetUnit);
         }
 
         @Override
@@ -49,5 +64,24 @@ public class QuantityMeasurementApp {
 
             return Double.compare(this.toFeet(), other.toFeet()) == 0;
         }
+
+        @Override
+        public String toString() {
+            return value + " " + unit;
+        }
+    }
+
+    public static double convert(double value, LengthUnit source, LengthUnit target) {
+
+        if (source == null || target == null) {
+            throw new IllegalArgumentException("Units cannot be null");
+        }
+
+        if (!Double.isFinite(value)) {
+            throw new IllegalArgumentException("Invalid numeric value");
+        }
+
+        double valueInFeet = source.toFeet(value);
+        return target.fromFeet(valueInFeet);
     }
 }
