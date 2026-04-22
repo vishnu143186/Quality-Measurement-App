@@ -38,26 +38,28 @@ public class QuantityMeasurementApp {
         }
 
         public Quantity add(Quantity other) {
-            if (other == null) {
-                throw new IllegalArgumentException("Other quantity cannot be null");
-            }
-
-            double sumInFeet = this.toFeet() + other.toFeet();
-
-            double resultValue = this.unit.fromFeet(sumInFeet);
-
-            return new Quantity(resultValue, this.unit);
+            return add(this, other, this.unit);
         }
 
         public static Quantity add(Quantity q1, Quantity q2, LengthUnit targetUnit) {
-            if (q1 == null || q2 == null || targetUnit == null) {
-                throw new IllegalArgumentException("Invalid input");
+
+            if (q1 == null || q2 == null) {
+                throw new IllegalArgumentException("Operands cannot be null");
+            }
+
+            if (targetUnit == null) {
+                throw new IllegalArgumentException("Target unit cannot be null");
+            }
+
+            if (!Double.isFinite(q1.value) || !Double.isFinite(q2.value)) {
+                throw new IllegalArgumentException("Invalid numeric values");
             }
 
             double sumFeet = q1.toFeet() + q2.toFeet();
-            double result = targetUnit.fromFeet(sumFeet);
 
-            return new Quantity(result, targetUnit);
+            double resultValue = targetUnit.fromFeet(sumFeet);
+
+            return new Quantity(resultValue, targetUnit);
         }
 
         @Override
